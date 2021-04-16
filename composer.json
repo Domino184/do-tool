@@ -1,0 +1,35 @@
+{
+  "name": "domino/do-util",
+  "description": "util",
+  "type": "util",
+  "keywords": [
+    "util"
+  ],
+  "require": {
+    "php": "^7.2",
+    "ext-calendar": "*",
+    "composer-plugin-api": "^1.0 || ^2.0",
+    "phpoffice/phpspreadsheet": "^1.17"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Domino184",
+      "email": "m18434900825@163.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "DoUtil\\": "src/"
+    },
+    "files": [
+      "src/Functions.php"
+    ]
+  },
+  "repositories": {
+    "packagist": {
+      "type": "composer",
+      "url": "https://mirrors.aliyun.com/composer/"
+    }
+  }
+}
