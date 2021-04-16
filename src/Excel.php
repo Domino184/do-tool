@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace DoUtil;
+namespace DoTool;
 
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -77,7 +77,7 @@ class Excel
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
         'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
         'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM',
-        'AN', 'AO', 'AP', 'AQ', 'AR', 'AS', 'AT', 'AU', 'AV', 'AW', 'AX', 'AY', 'AZ'
+        'AN', 'AO', 'AP', 'AQ', 'AR', 'AS', 'AT', 'AU', 'AV', 'AW', 'AX', 'AY', 'AZ',
     ];
 
     /**
@@ -85,19 +85,19 @@ class Excel
      * @var array
      */
     private $styleArray = [
-        'font' => [
+        'font'      => [
             'name' => '宋体',
         ],
         'alignment' => [
             'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-            'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
-            'wrapText' => true, // 换行
+            'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+            'wrapText'   => true, // 换行
         ],
-        'borders' => [
-            'left' => [
+        'borders'   => [
+            'left'   => [
                 'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
             ],
-            'right' => [
+            'right'  => [
                 'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
             ],
             'bottom' => [
@@ -111,27 +111,27 @@ class Excel
      * @var array
      */
     private $styleHeaderArray = [
-        'font' => [
+        'font'      => [
             'name' => '宋体',
         ],
         'alignment' => [
             'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-            'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP,
-            'wrapText' => true, // 换行
+            'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP,
+            'wrapText'   => true, // 换行
         ],
-        'borders' => [
-            'top' => [
+        'borders'   => [
+            'top'    => [
                 'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
             ],
-            'left' => [
+            'left'   => [
                 'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
             ],
-            'right' => [
+            'right'  => [
                 'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
             ],
             'bottom' => [
                 'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                'color' => [
+                'color'       => [
                     'rgb' => '42A642' // 绿色
                 ],
             ],
@@ -143,13 +143,15 @@ class Excel
      * 构建方法私有化
      * Excel constructor.
      */
-    private function __construct(){}
+    private function __construct()
+    {
+    }
 
     /**
      * @return Excel|null
      * @author Domino <m18434900825@163.com>
-     * @title 单一入口
-     * @time 2021/3/17 001711:29
+     * @title  单一入口
+     * @time   2021/3/17 001711:29
      */
     public static function getInstance()
     {
@@ -162,8 +164,8 @@ class Excel
     /**
      * @param string $val
      * @author Domino <m18434900825@163.com>
-     * @title 设置字体输出格式
-     * @time 2021/3/19 001913:19
+     * @title  设置字体输出格式
+     * @time   2021/3/19 001913:19
      */
     public function setFontSize(int $val)
     {
@@ -174,8 +176,8 @@ class Excel
     /**
      * @param string $val
      * @author Domino <m18434900825@163.com>
-     * @title 设置输出格式
-     * @time 2021/3/17 001712:34
+     * @title  设置输出格式
+     * @time   2021/3/17 001712:34
      */
     public function setOutputFormat(string $val)
     {
@@ -184,15 +186,15 @@ class Excel
     }
 
     /**
-     * @param array $header 表头 ['11', '22', '33']
-     * @param array $data 数据
-     * @param string $title 标题
+     * @param array  $header    表头 ['11', '22', '33']
+     * @param array  $data      数据
+     * @param string $title     标题
      * @param string $sheetName 单元名称
-     * @param array $info 第二行信息
+     * @param array  $info      第二行信息
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @author Domino <m18434900825@163.com>
-     * @title title
-     * @time 2021/3/17 001712:19
+     * @title  title
+     * @time   2021/3/17 001712:19
      */
     public function export($data = [], $header = [], $title = '', $sheetName = '')
     {
@@ -217,8 +219,8 @@ class Excel
             $sheetName = $this->title;
         }
         $this->maxCell = $this->cellKey[count($header) - 1];
-        $this->cells = array_slice($this->cellKey, 0, count($header));
-        $this->length = count($data);
+        $this->cells   = array_slice($this->cellKey, 0, count($header));
+        $this->length  = count($data);
         // 设置基础信息
         $spreadsheet->getProperties()
             ->setCreator("Neo")
@@ -289,7 +291,7 @@ class Excel
         }
         // 导出
         $objWriter = IOFactory::createWriter($spreadsheet, 'Xlsx');
-        $filename = $this->title . '.xlsx';
+        $filename  = $this->title . '.xlsx';
         ob_end_clean();
         ob_start();
         // 解决跨域
@@ -306,10 +308,10 @@ class Excel
 
     /**
      * 导入
-     * @param string $filePath excel的服务器存放地址 可以取临时地址
-     * @param int $startRow 开始和行数
-     * @param bool $hasImg 导出的时候是否有图片
-     * @param string $suffix 格式
+     * @param string $filePath      excel的服务器存放地址 可以取临时地址
+     * @param int    $startRow      开始和行数
+     * @param bool   $hasImg        导出的时候是否有图片
+     * @param string $suffix        格式
      * @param string $imageFilePath 作为临时使用的 图片存放的地址
      * @return array|mixed
      * @throws \Exception
@@ -333,23 +335,23 @@ class Excel
         }
 
         $spreadsheet = $reader->load($filePath);
-        $sheetCount = $spreadsheet->getSheetCount();// 获取sheet(工作表)的数量
+        $sheetCount  = $spreadsheet->getSheetCount();// 获取sheet(工作表)的数量
 
         // 获取所有的sheet表格数据
-        $excleDatas = [];
+        $excleDatas  = [];
         $emptyRowNum = 0;
         for ($i = 0; $i < $sheetCount; $i++) {
             $objWorksheet = $spreadsheet->getSheet($i); // 读取excel文件中的第一个工作表
-            $data = $objWorksheet->toArray();
+            $data         = $objWorksheet->toArray();
             if ($hasImg) {
                 foreach ($objWorksheet->getDrawingCollection() as $drawing) {
-                    list($startColumn, $startRow) = Coordinate::coordinateFromString($drawing->getCoordinates());
+                    [$startColumn, $startRow] = Coordinate::coordinateFromString($drawing->getCoordinates());
                     $imageFileName = $drawing->getCoordinates() . mt_rand(1000, 9999);
                     $imageFileName .= '.' . $drawing->getExtension();
-                    $source = imagecreatefromjpeg($drawing->getPath());
+                    $source        = imagecreatefromjpeg($drawing->getPath());
                     imagejpeg($source, $imageFilePath . $imageFileName);
 
-                    $startColumn = $this->ABC2decimal($startColumn);
+                    $startColumn                       = $this->ABC2decimal($startColumn);
                     $data[$startRow - 1][$startColumn] = $imageFilePath . $imageFileName;
                 }
             }
@@ -382,8 +384,8 @@ class Excel
     /**
      * @param string $val
      * @author Domino <m18434900825@163.com>
-     * @title 格式化字符串
-     * @time 2021/3/17 001716:44
+     * @title  格式化字符串
+     * @time   2021/3/17 001716:44
      */
     private function isValFormat($val = '')
     {
@@ -408,8 +410,8 @@ class Excel
 
     /**
      * @author Domino <m18434900825@163.com>
-     * @title 私有化克隆
-     * @time 2021/3/19 001913:21
+     * @title  私有化克隆
+     * @time   2021/3/19 001913:21
      */
     private function __clone()
     {

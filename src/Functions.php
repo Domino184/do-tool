@@ -3,13 +3,13 @@
 if (!function_exists('def_format_bytes')) {
     /**
      * 将字节转换为可读文本
-     * @param int $size 大小
+     * @param int    $size      大小
      * @param string $delimiter 分隔符
      * @return string
      */
     function def_format_bytes($size = 0, $delimiter = '')
     {
-        $units = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
+        $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
         for ($i = 0; $size >= 1024 && $i < 6; $i++) {
             $size /= 1024;
         }
@@ -25,9 +25,9 @@ if (!function_exists('def_format_week')) {
      */
     function def_format_week($time)
     {
-        $time = is_numeric($time) ? $time : strtotime($time);
-        $weeks = array("周日", "周一", "周二", "周三", "周四", "周五", "周六");
-        $week = date('w', $time);
+        $time  = is_numeric($time) ? $time : strtotime($time);
+        $weeks = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+        $week  = date('w', $time);
         return $weeks[$week] ?? '';
     }
 }
@@ -38,11 +38,11 @@ if (!function_exists('def_filter')) {
      * Date: 2019/12/21
      * Time: 15:55
      * @title 过滤，获取两个数组的交集
-     * @param $data
+     * @param      $data
      * @param null $whiteList
      * @return array
      */
-    function def_filter($data, $whiteList = array())
+    function def_filter($data, $whiteList = [])
     {
         $data = array_intersect_key($data, array_flip($whiteList));
         return $data;
@@ -54,8 +54,8 @@ if (!function_exists('def_regex_match')) {
      * @param $value
      * @param $rule
      * @author Domino <m18434900825@163.com>
-     * @title 自定义正则验证
-     * @time 2020/12/23 002316:36
+     * @title  自定义正则验证
+     * @time   2020/12/23 002316:36
      */
     function def_regex_match($value, $rule)
     {
@@ -72,8 +72,8 @@ if (!function_exists('set_timeout')) {
     /**
      * @param int $timeout
      * @author Domino <m18434900825@163.com>
-     * @title 设置延时时间
-     * @time 2020/12/30 003011:23
+     * @title  设置延时时间
+     * @time   2020/12/30 003011:23
      */
     function set_timeout($timeout = 172800)
     {
@@ -92,8 +92,8 @@ if (!function_exists('is_valid_time')) {
     /**
      * @param $value
      * @author Domino <m18434900825@163.com>
-     * @title 判断是否为有效的时间
-     * @time 2021/1/7 000715:30
+     * @title  判断是否为有效的时间
+     * @time   2021/1/7 000715:30
      */
     function is_valid_time($time)
     {
@@ -119,7 +119,7 @@ if (!function_exists('def_http_build_query')) {
     function def_http_build_query($url, $param = [])
     {
         $query_string = is_array($param) ? http_build_query($param) : $param;
-        $geturl = $query_string ? $url . (stripos($url, "?") !== false ? "&" : "?") . $query_string : $url;
+        $geturl       = $query_string ? $url . (stripos($url, "?") !== false ? "&" : "?") . $query_string : $url;
         return $geturl;
     }
 }
@@ -129,8 +129,8 @@ if (!function_exists('check_empty')) {
      * @param $value
      * @return bool
      * @author Domino <m18434900825@163.com>
-     * @title 检查空
-     * @time 2021/1/18 001810:27
+     * @title  检查空
+     * @time   2021/1/18 001810:27
      */
     function check_empty($value)
     {
@@ -153,8 +153,8 @@ if (!function_exists('check_empty')) {
 if (!function_exists('check_max_length')) {
     /**
      * @author Domino <m18434900825@163.com>
-     * @title 检查最大长度
-     * @time 2021/1/18 001810:48
+     * @title  检查最大长度
+     * @time   2021/1/18 001810:48
      */
     function check_max_length($value, $maxLength)
     {
@@ -168,8 +168,8 @@ if (!function_exists('check_max_length')) {
 if (!function_exists('check_max_list_size')) {
     /**
      * @author Domino <m18434900825@163.com>
-     * @title 检查列表长度
-     * @time 2021/1/18 001810:50
+     * @title  检查列表长度
+     * @time   2021/1/18 001810:50
      */
     function check_max_list_size($value, $maxSize)
     {
@@ -187,16 +187,16 @@ if (!function_exists('check_max_list_size')) {
 if (!function_exists('tpl_replace')) {
     /**
      * @param string $str
-     * @param $separator1 string 前界定符
-     * @param $separator2 string 后界定符
+     * @param        $separator1 string 前界定符
+     * @param        $separator2 string 后界定符
      * @author Domino <m18434900825@163.com>
-     * @title 正则替换指定界定符中间内容 （也可使用正则(?<=)来实现）
-     * @time 2021/3/2 000215:20
+     * @title  正则替换指定界定符中间内容 （也可使用正则(?<=)来实现）
+     * @time   2021/3/2 000215:20
      */
     function tpl_replace($str = '', $arr = [], $separator1 = '{', $separator2 = '}')
     {
         $regex = '/' . $separator1 . '(.+?)' . $separator2 . '/i';
-        $str = preg_replace_callback($regex, function ($matches) use ($arr) {
+        $str   = preg_replace_callback($regex, function ($matches) use ($arr) {
             return !empty($arr[$matches[1]]) ? $arr[$matches[1]] : $matches[0];
         }, $str);
         return $str;
@@ -208,31 +208,32 @@ if (!function_exists('check_bank_card')) {
      * @param $card
      * @return bool
      * @author Domino <m18434900825@163.com>
-     * @title 验证银行卡
-     * @time 2021/3/17 001716:58
+     * @title  验证银行卡
+     * @time   2021/3/17 001716:58
      */
-    function check_bank_card($card){
+    function check_bank_card($card)
+    {
         $arr_no = str_split($card);
-        $last_n = $arr_no[count($arr_no)-1];
+        $last_n = $arr_no[count($arr_no) - 1];
         krsort($arr_no);
-        $i = 1;
+        $i     = 1;
         $total = 0;
-        foreach ($arr_no as $n){
-            if($i%2==0){
-                $ix = $n*2;
-                if($ix>=10){
-                    $nx = 1 + ($ix % 10);
+        foreach ($arr_no as $n) {
+            if ($i % 2 == 0) {
+                $ix = $n * 2;
+                if ($ix >= 10) {
+                    $nx    = 1 + ($ix % 10);
                     $total += $nx;
-                }else{
+                } else {
                     $total += $ix;
                 }
-            }else{
+            } else {
                 $total += $n;
             }
             $i++;
         }
         $total -= $last_n;
         $total *= 9;
-        return $last_n == ($total%10);
+        return $last_n == ($total % 10);
     }
 }

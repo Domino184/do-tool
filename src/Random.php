@@ -1,6 +1,6 @@
 <?php
 
-namespace DoUtil;
+namespace DoTool;
 
 /**
  * 随机生成类
@@ -55,7 +55,7 @@ class Random
     /**
      * 能用的随机数生成
      * @param string $type 类型 alpha/alnum/numeric/nozero/unique/md5/encrypt/sha1
-     * @param int $len 长度
+     * @param int    $len  长度
      * @return string
      */
     public static function build($type = 'alnum', $len = 8)
@@ -92,9 +92,9 @@ class Random
     /**
      * 根据数组元素的概率获得键名
      *
-     * @param array $ps array('p1'=>20, 'p2'=>30, 'p3'=>50);
-     * @param int $num 默认为1,即随机出来的数量
-     * @param bool $unique 默认为true,即当num>1时,随机出的数量是否唯一
+     * @param array $ps     array('p1'=>20, 'p2'=>30, 'p3'=>50);
+     * @param int   $num    默认为1,即随机出来的数量
+     * @param bool  $unique 默认为true,即当num>1时,随机出的数量是否唯一
      * @return mixed 当num为1时返回键名,反之返回一维数组
      */
     public static function lottery($ps, $num = 1, $unique = true)
@@ -107,10 +107,10 @@ class Random
             return $num == 1 ? $res[0] : $res;
         }
         $max_exp = 0;
-        $res = [];
+        $res     = [];
         foreach ($ps as $key => $value) {
             $value = substr($value, 0, stripos($value, ".") + 6);
-            $exp = strlen(strchr($value, '.')) - 1;
+            $exp   = strlen(strchr($value, '.')) - 1;
             if ($exp > $max_exp) {
                 $max_exp = $exp;
             }

@@ -1,6 +1,6 @@
 <?php
 
-namespace DoUtil;
+namespace DoTool;
 
 /**
  * @mark 依赖于calendar扩展
@@ -24,8 +24,8 @@ class Date
      * <http://php.net/timezones>.
      *
      * @param string $remote timezone that to find the offset of
-     * @param string $local timezone used as the baseline
-     * @param mixed $now UNIX timestamp or date string
+     * @param string $local  timezone used as the baseline
+     * @param mixed  $now    UNIX timestamp or date string
      * @return  integer
      */
     public static function offset($remote, $local = null, $now = null)
@@ -40,10 +40,10 @@ class Date
         }
         // Create timezone objects
         $zone_remote = new \DateTimeZone($remote);
-        $zone_local = new \DateTimeZone($local);
+        $zone_local  = new \DateTimeZone($local);
         // Create date objects from timezones
         $time_remote = new \DateTime($now, $zone_remote);
-        $time_local = new \DateTime($now, $zone_local);
+        $time_local  = new \DateTime($now, $zone_local);
         // Find the offset
         $offset = $zone_remote->getOffset($time_remote) - $zone_local->getOffset($time_local);
         return $offset;
@@ -55,8 +55,8 @@ class Date
      * $span = self::span(60, 182, 'minutes,seconds'); // array('minutes' => 2, 'seconds' => 2)
      * $span = self::span(60, 182, 'minutes'); // 2
      *
-     * @param int $remote timestamp to find the span of
-     * @param int $local timestamp to use as the baseline
+     * @param int    $remote timestamp to find the span of
+     * @param int    $local  timestamp to use as the baseline
      * @param string $output formatting string
      * @return  string   when only a single output is requested
      * @return  array    associative list of all outputs requested
@@ -123,19 +123,19 @@ class Date
     public static function human($remote, $local = null)
     {
         $timediff = (is_null($local) || $local ? time() : $local) - $remote;
-        $chunks = array(
-            array(60 * 60 * 24 * 365, 'year'),
-            array(60 * 60 * 24 * 30, 'month'),
-            array(60 * 60 * 24 * 7, 'week'),
-            array(60 * 60 * 24, 'day'),
-            array(60 * 60, 'hour'),
-            array(60, 'minute'),
-            array(1, 'second')
-        );
+        $chunks   = [
+            [60 * 60 * 24 * 365, 'year'],
+            [60 * 60 * 24 * 30, 'month'],
+            [60 * 60 * 24 * 7, 'week'],
+            [60 * 60 * 24, 'day'],
+            [60 * 60, 'hour'],
+            [60, 'minute'],
+            [1, 'second'],
+        ];
 
         for ($i = 0, $j = count($chunks); $i < $j; $i++) {
             $seconds = $chunks[$i][0];
-            $name = $chunks[$i][1];
+            $name    = $chunks[$i][1];
             if (($count = floor($timediff / $seconds)) != 0) {
                 break;
             }
@@ -146,24 +146,24 @@ class Date
     /**
      * 获取一个基于时间偏移的Unix时间戳
      *
-     * @param string $type 时间类型，默认为day，可选minute,hour,day,week,month,quarter,year
-     * @param int $offset 时间偏移量 默认为0，正数表示当前type之后，负数表示当前type之前
+     * @param string $type     时间类型，默认为day，可选minute,hour,day,week,month,quarter,year
+     * @param int    $offset   时间偏移量 默认为0，正数表示当前type之后，负数表示当前type之前
      * @param string $position 时间的开始或结束，默认为begin，可选前(begin,start,first,front)，end
-     * @param int $year 基准年，默认为null，即以当前年为基准
-     * @param int $month 基准月，默认为null，即以当前月为基准
-     * @param int $day 基准天，默认为null，即以当前天为基准
-     * @param int $hour 基准小时，默认为null，即以当前年小时基准
-     * @param int $minute 基准分钟，默认为null，即以当前分钟为基准
+     * @param int    $year     基准年，默认为null，即以当前年为基准
+     * @param int    $month    基准月，默认为null，即以当前月为基准
+     * @param int    $day      基准天，默认为null，即以当前天为基准
+     * @param int    $hour     基准小时，默认为null，即以当前年小时基准
+     * @param int    $minute   基准分钟，默认为null，即以当前分钟为基准
      * @return int 处理后的Unix时间戳
      */
     public static function unixtime($type = 'day', $offset = 0, $position = 'begin', $year = null, $month = null, $day = null, $hour = null, $minute = null)
     {
-        $year = is_null($year) ? date('Y') : $year;
-        $month = is_null($month) ? date('m') : $month;
-        $day = is_null($day) ? date('d') : $day;
-        $hour = is_null($hour) ? date('H') : $hour;
-        $minute = is_null($minute) ? date('i') : $minute;
-        $position = in_array($position, array('begin', 'start', 'first', 'front'));
+        $year     = is_null($year) ? date('Y') : $year;
+        $month    = is_null($month) ? date('m') : $month;
+        $day      = is_null($day) ? date('d') : $day;
+        $hour     = is_null($hour) ? date('H') : $hour;
+        $minute   = is_null($minute) ? date('i') : $minute;
+        $position = in_array($position, ['begin', 'start', 'first', 'front']);
         switch ($type) {
             case 'minute':
                 $time = $position ? mktime($hour, $minute + $offset, 0, $month, $day, $year) : mktime($hour, $minute + $offset, 59, $month, $day, $year);

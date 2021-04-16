@@ -1,6 +1,6 @@
 <?php
 
-namespace DoUtil;
+namespace DoTool;
 
 /**
  * 通用树型类
@@ -13,12 +13,12 @@ class Tree
      * @var array
      */
     protected static $config = [
-        'id' => 'id',        // id名称
-        'pid' => 'pid',       // pid名称
-        'child' => 'childs',    // 子元素键名
-        'name' => 'name',      // 下拉列表的选项名
-        'icon' => '├',         // 下拉列表的图标
-        'placeholder' => '&nbsp;',    // 下拉列表的占位符
+        'id'                 => 'id',        // id名称
+        'pid'                => 'pid',       // pid名称
+        'child'              => 'childs',    // 子元素键名
+        'name'               => 'name',      // 下拉列表的选项名
+        'icon'               => '├',         // 下拉列表的图标
+        'placeholder'        => '&nbsp;',    // 下拉列表的占位符
         'placeholder_number' => 3,           // 下拉列表的占位符数量
     ];
 
@@ -45,16 +45,16 @@ class Tree
 
     /**
      * 将数据集格式化成树形结构
-     * @param array $data 原始数据
-     * @param int $pid 父级id
-     * @param int $limitLevel 限制返回几层，0为不限制
-     * @param int $currentLevel 当前层数
+     * @param array $data         原始数据
+     * @param int   $pid          父级id
+     * @param int   $limitLevel   限制返回几层，0为不限制
+     * @param int   $currentLevel 当前层数
      * @return array
      */
     public static function toTree($data = [], $pid = 0, $limitLevel = 0, $currentLevel = 0)
     {
         $trees = [];
-        $data = array_values($data);
+        $data  = array_values($data);
 
         foreach ($data as $k => $v) {
 

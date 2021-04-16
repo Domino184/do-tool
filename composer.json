@@ -1,9 +1,9 @@
 {
-  "name": "domino/do-util",
-  "description": "util",
-  "type": "util",
+  "name": "domino/do-tool",
+  "description": "tool",
+  "type": "tool",
   "keywords": [
-    "util"
+    "tool"
   ],
   "require": {
     "php": "^7.2",
@@ -20,7 +20,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "DoUtil\\": "src/"
+      "DoTool\\": "src/"
     },
     "files": [
       "src/Functions.php"

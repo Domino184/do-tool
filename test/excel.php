@@ -1,7 +1,7 @@
 <?php
 require __DIR__ . '/../vendor/autoload.php';
 
-use DoUtil\Excel;
+use Tool\Excel;
 
 //$data = Excel::getInstance()->import('./客户评分.xlsx');
 //$header = array_slice($data, 0, 1);
