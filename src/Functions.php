@@ -237,3 +237,122 @@ if (!function_exists('check_bank_card')) {
         return $last_n == ($total % 10);
     }
 }
+
+if (!function_exists('diff_date_format')) {
+    /**
+     * 不同时间进行计算
+     * @param $t1
+     * @param $t2
+     * @return string
+     */
+    function diff_date_format($t1, $t2, $output = 'year,month,day')
+    {
+        $output = trim(strtolower((string)$output));
+        if (!$output) {
+            // Invalid output
+            return false;
+        }
+        // Array with the output formats
+        $output = preg_split('/[^a-z]+/', $output);
+        // Convert the list of outputs to an associative array
+        $output = array_combine($output, array_fill(0, count($output), 0));
+        // Make the output values into keys
+        extract(array_flip($output), EXTR_SKIP);
+        if ($t1 > $t2) {
+            $b = getdate($t2);
+            $a = getdate($t1);
+        } else {
+            $b = getdate($t1);
+            $a = getdate($t2);
+        }
+        $n = [1 => 31, 2 => 28, 3 => 31, 4 => 30, 5 => 31, 6 => 30, 7 => 31, 8 => 31, 9 => 30, 10 => 31, 11 => 30, 12 => 31];
+        $y = $m = $d = 0;
+        if ($a['mday'] >= $b['mday']) { //天相减为正
+            if ($a['mon'] >= $b['mon']) {//月相减为正
+                $y = $a['year'] - $b['year'];
+                $m = $a['mon'] - $b['mon'];
+            } else { //月相减为负，借年
+                $y = $a['year'] - $b['year'] - 1;
+                $m = $a['mon'] - $b['mon'] + 12;
+            }
+            $d = $a['mday'] - $b['mday'];
+        } else {  //天相减为负，借月
+            if ($a['mon'] == 1) { //1月，借年
+                $y = $a['year'] - $b['year'] - 1;
+                $m = $a['mon'] - $b['mon'] + 12;
+                $d = $a['mday'] - $b['mday'] + $n[12];
+            } else {
+                if ($a['mon'] == 3) { //3月，判断闰年取得2月天数
+                    $d = $a['mday'] - $b['mday'] + ($a['year'] % 4 == 0 ? 29 : 28);
+                } else {
+                    $d = $a['mday'] - $b['mday'] + $n[$a['mon'] - 1];
+                }
+                if ($a['mon'] >= $b['mon'] + 1) { //借月后，月相减为正
+                    $y = $a['year'] - $b['year'];
+                    $m = $a['mon'] - $b['mon'] - 1;
+                } else { //借月后，月相减为负，借年
+                    $y = $a['year'] - $b['year'] - 1;
+                    $m = $a['mon'] - $b['mon'] + 12 - 1;
+                }
+            }
+        }
+        if (isset($output['year'])) {
+            $output['year'] = $y;
+        }
+        if (isset($output['month'])) {
+            $output['month'] = $m;
+        }
+        if (isset($output['year'])) {
+            $output['day'] = $d;
+        }
+        return $output;
+    }
+}
+
+if (!function_exists('def_format_num')) {
+    /**
+     * 把数字1-1亿换成汉字表述，如：123->一百二十三
+     * @param      $num
+     * @param bool $mode
+     * @param bool $sim
+     * @return string
+     */
+    function def_format_num($num)
+    {
+        $chiNum  = ['零', '一', '两', '三', '四', '五', '六', '七', '八', '九'];
+        $chiUni  = ['', '十', '百', '千', '万', '十万', '百万', '千万', '亿'];
+        $chiStr  = '';
+        $num_str = (string)$num;
+        $count = strlen($num_str);
+        $last_flag = true; //上一个 是否为0
+        $zero_flag = true; //是否第一个
+        $temp_num = null; //临时数字
+        $chiStr = '';//拼接结果
+        if ($count == 2) {//两位数
+            $temp_num = $num_str[0];
+            $chiStr = $temp_num == 1 ? $chiUni[1] : $chiNum[$temp_num] . $chiUni[1];
+            $temp_num = $num_str[1];
+            $chiStr .= $temp_num == 0 ? '' : $chiNum[$temp_num];
+        } else if ($count > 2) {
+            $index = 0;
+            for ($i = $count - 1; $i >= 0; $i--) {
+                $temp_num = $num_str[$i];
+                if ($temp_num == 0) {
+                    if (!$zero_flag && !$last_flag) {
+                        $chiStr = $chiNum[$temp_num] . $chiStr;
+                        $last_flag = true;
+                    }
+                } else {
+                    $chiStr = $chiNum[$temp_num] . $chiUni[$index % 9] . $chiStr;
+                    $zero_flag = false;
+                    $last_flag = false;
+                }
+                $index++;
+            }
+        } else {
+            $chiStr = $chiNum[$num_str[0]];
+        }
+        return $chiStr;
+    }
+}
+

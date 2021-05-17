@@ -3,7 +3,6 @@
 /**
  * 正则表达式：基本字符
  */
-
 $str = 'Goole Runoob Taobao';
 
 $subject = array('1', 'a', '2', 'b', '3', 'A', 'B', '4');
