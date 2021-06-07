@@ -158,12 +158,15 @@ class Date
      */
     public static function unixtime($type = 'day', $offset = 0, $position = 'begin', $year = null, $month = null, $day = null, $hour = null, $minute = null)
     {
-        $year     = is_null($year) ? date('Y') : $year;
-        $month    = is_null($month) ? date('m') : $month;
-        $day      = is_null($day) ? date('d') : $day;
-        $hour     = is_null($hour) ? date('H') : $hour;
-        $minute   = is_null($minute) ? date('i') : $minute;
-        $position = in_array($position, ['begin', 'start', 'first', 'front']);
+        $year = is_null($year) ? date('Y') : $year;
+        $month = is_null($month) ? date('m') : $month;
+        $day = is_null($day) ? date('d') : $day;
+        $hour = is_null($hour) ? date('H') : $hour;
+        $minute = is_null($minute) ? date('i') : $minute;
+        $position = in_array($position, array('begin', 'start', 'first', 'front'));
+
+        $baseTime = mktime(0, 0, 0, $month, $day, $year);
+
         switch ($type) {
             case 'minute':
                 $time = $position ? mktime($hour, $minute + $offset, 0, $month, $day, $year) : mktime($hour, $minute + $offset, 59, $month, $day, $year);
@@ -175,17 +178,20 @@ class Date
                 $time = $position ? mktime(0, 0, 0, $month, $day + $offset, $year) : mktime(23, 59, 59, $month, $day + $offset, $year);
                 break;
             case 'week':
+                $weekIndex = date("w", $baseTime);
                 $time = $position ?
-                    mktime(0, 0, 0, $month, $day - date("w", mktime(0, 0, 0, $month, $day, $year)) + 1 - 7 * (-$offset), $year) :
-                    mktime(23, 59, 59, $month, $day - date("w", mktime(0, 0, 0, $month, $day, $year)) + 7 - 7 * (-$offset), $year);
+                    strtotime($offset . " weeks", strtotime(date('Y-m-d', strtotime("-" . ($weekIndex ? $weekIndex - 1 : 6) . " days", $baseTime)))) :
+                    strtotime($offset . " weeks", strtotime(date('Y-m-d 23:59:59', strtotime("+" . (6 - ($weekIndex ? $weekIndex - 1 : 6)) . " days", $baseTime))));
                 break;
             case 'month':
-                $time = $position ? mktime(0, 0, 0, $month + $offset, 1, $year) : mktime(23, 59, 59, $month + $offset, cal_days_in_month(CAL_GREGORIAN, $month + $offset, $year), $year);
+                $_timestamp = mktime(0, 0, 0, $month + $offset, 1, $year);
+                $time = $position ? $_timestamp : mktime(23, 59, 59, $month + $offset, cal_days_in_month(CAL_GREGORIAN, date("m", $_timestamp), date("Y", $_timestamp)), $year);
                 break;
             case 'quarter':
+                $_month = date("m", mktime(0, 0, 0, (ceil(date('n', mktime(0, 0, 0, $month, $day, $year)) / 3) + $offset) * 3, $day, $year));
                 $time = $position ?
-                    mktime(0, 0, 0, 1 + ((ceil(date('n', mktime(0, 0, 0, $month, $day, $year)) / 3) + $offset) - 1) * 3, 1, $year) :
-                    mktime(23, 59, 59, (ceil(date('n', mktime(0, 0, 0, $month, $day, $year)) / 3) + $offset) * 3, cal_days_in_month(CAL_GREGORIAN, (ceil(date('n', mktime(0, 0, 0, $month, $day, $year)) / 3) + $offset) * 3, $year), $year);
+                    mktime(0, 0, 0, 1 + ((ceil(date('n', $baseTime) / 3) + $offset) - 1) * 3, 1, $year) :
+                    mktime(23, 59, 59, (ceil(date('n', $baseTime) / 3) + $offset) * 3, cal_days_in_month(CAL_GREGORIAN, (ceil(date('n', $baseTime) / 3) + $offset) * 3, $year), $year);
                 break;
             case 'year':
                 $time = $position ? mktime(0, 0, 0, 1, 1, $year + $offset) : mktime(23, 59, 59, 12, 31, $year + $offset);

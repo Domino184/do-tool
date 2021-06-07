@@ -356,3 +356,148 @@ if (!function_exists('def_format_num')) {
     }
 }
 
+if (!function_exists('def_format_time')) {
+    /**
+     * Author: Domino
+     * Date: 2020/3/1
+     * Time: 13:09
+     * @title 格式化时间
+     * @param $time
+     * @param string $format
+     */
+    function def_format_time($time, $format = 'datetime')
+    {
+        $time = is_numeric($time) ? $time : strtotime($time);
+        $this_week_start = mktime(0, 0, 0, date('m'), date('d') - date("w", mktime(0, 0, 0, date('m'), date('d'), date('Y'))) + 1, date('Y'));
+        $this_week_end = mktime(23, 59, 59, date('m'), date('d') - date("w", mktime(0, 0, 0, date('m'), date('d'), date('Y'))) + 7, date('Y'));
+        $yesterday_start = mktime(0, 0, 0, date('m'), date('d') - 1, date('Y'));
+        $yesterday_end = mktime(23, 59, 59, date('m'), date('d') - 1, date('Y'));
+        $now_time = time();
+        // 当年
+        if (date('Y', $now_time) == date('Y', $time)) {
+            // 当月且是当天
+            if (date('m', $now_time) == date('m', $time) && date('d', $now_time) == date('d', $time)) {
+                // 当天
+                $time = date('H:i', $time);
+            } else {
+                if ($time >= $yesterday_start && $time <= $yesterday_end) { // 昨天
+                    switch ($format) {
+                        case 'date':
+                            $time = '昨天';
+                            break;
+                        case 'datetime':
+                            $time = '昨天 ' . date('H:i', $time);
+                            break;
+                    }
+                } else if ($time >= $this_week_start && $time <= $this_week_end) { // 本周
+                    switch ($format) {
+                        case 'date':
+                            $time = def_format_week($time);
+                            break;
+                        case 'datetime':
+                            $time = def_format_week($time) . ' ' . date('H:i', $time);
+                            break;
+                    }
+                } else {
+                    switch ($format) {
+                        case 'date':
+                            $time = date('m月d日', $time);
+                            break;
+                        case 'datetime':
+                            $time = date('m月d日', $time) . ' ' . def_format_today(date('H', $time)). ' ' . date('H:i', $time);
+                            break;
+                    }
+                }
+            }
+        } else {
+            switch ($format) {
+                case 'date':
+                    $time = date('Y年m月d日', $time);
+                    break;
+                case 'datetime':
+                    $time = date('Y年m月d日', $time) . ' ' . def_format_today(date('H', $time)) . date('H:i', $time);
+                    break;
+            }
+        }
+        return $time;
+    }
+}
+
+if (!function_exists('def_format_today')) {
+    /**
+     * Author: Domino
+     * Date: 2020/3/1
+     * Time: 13:30
+     * @title 格式化时间
+     */
+    function def_format_today($time)
+    {
+        // 1-5点是凌晨，5-8点是早晨，9-13点是中午，14-18点是下午，19-24点是晚上。
+        if ($time > 0 && $time <= 5) {
+            return '凌晨';
+        } else if ($time > 5 && $time <= 8) {
+            return '早晨';
+        } else if ($time > 8 && $time <= 13) {
+            return '中午';
+        } else if ($time > 13 && $time <= 18) {
+            return '下午';
+        } else {
+            return '晚上';
+        }
+    }
+}
+
+if (!function_exists('def_diff_time')) {
+    /**
+     * 时间差
+     * @param $time
+     * @return false|string
+     */
+    function def_diff_time($time)
+    {
+        $diff = time() - strtotime($time);
+        if ($diff < 60) {
+            return $diff . '秒';
+        }
+        if ($diff >= 60 && $diff < 60 * 60) {
+            return intval($diff / 60.0) . '分钟';
+        }
+        if ($diff >= 60 * 60 && $diff < 24 * 60 * 60) {
+            return intval($diff / (60 * 60.0)) . '小时';
+        }
+        if ($diff >= 24 * 60 * 60 && $diff < 30 * 24 * 60 * 60) {
+            return intval($diff / (24.0 * 60 * 60)) . '天';
+        }
+        return date('Y-m-d H:i:s', strtotime($time));
+    }
+}
+
+if (!function_exists('def_str_filter')) {
+    /**
+     * @author Domino <m18434900825@163.com>
+     * @title 字符串处理
+     * @time 2021/1/26 002613:00
+     */
+    function def_str_filter($value) {
+        if (!is_array($value)) {
+            $value = explode(',', $value);
+        }
+        $value = array_unique(array_filter($value));
+        return implode(',', $value);
+    }
+}
+
+if (!function_exists('def_arr_filter')) {
+    /**
+     * @author Domino <m18434900825@163.com>
+     * @title 数组处理
+     * @time 2021/1/26 002613:00
+     */
+    function def_arr_filter($value) {
+        if (!is_array($value)) {
+            $value = (array)explode(',', $value);
+        }
+        return array_unique(array_filter($value));
+    }
+}
+
