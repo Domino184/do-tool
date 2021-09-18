@@ -1,13 +1,18 @@
 <?php
 
+/*
+ * +----------------------------------------------------------------------
+ * | do-tool工具库
+ * +----------------------------------------------------------------------
+ * | Author: Domino184 <m18434900825@163.com>
+ * +----------------------------------------------------------------------
+ */
+
+declare(strict_types=1);
+
 namespace DoTool;
 
 /**
- * @link      http://kodcloud.com/
- * @author    warlee | e-mail:kodcloud@qq.com
- * @copyright warlee 2014.(Shanghai)Co.,Ltd
- * @license   http://kodcloud.com/tools/licenses/license.txt
- *------
  * 字符串加解密类；
  * 一次一密；且定时解密有效
  * 可用于加密&动态key生成

@@ -1,11 +1,25 @@
 <?php
+
+/*
+ * +----------------------------------------------------------------------
+ * | do-tool工具库
+ * +----------------------------------------------------------------------
+ * | Author: Domino184 <m18434900825@163.com>
+ * +----------------------------------------------------------------------
+ */
+
 declare(strict_types=1);
 
 namespace DoTool;
 
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Csv;
+use PhpOffice\PhpSpreadsheet\Writer\Html;
+use PhpOffice\PhpSpreadsheet\Writer\Xls;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class Excel
 {
@@ -14,12 +28,6 @@ class Excel
      * @var null
      */
     private static $instance = null;
-
-    /**
-     * 导出标题
-     * @var string
-     */
-    private $title = '导出';
 
     /**
      * 单元格宽度
@@ -40,45 +48,40 @@ class Excel
     private $fontSize = 8;
 
     /**
+     * 表头背景颜色
+     * @var string
+     */
+    private $headerBgColor = 'DDEBF7';
+
+    /**
      * 初始化行 （标题、备注、表头）
      * @var int
      */
     private $topNum = 1;
 
     /**
-     * 数据长度
-     * @var int
-     */
-    private $length = 0;
-
-    /**
-     * 最大的数据单元
+     * 导出标题
      * @var string
      */
-    private $maxCell = 'A';
+    private $title = 'Sheet1';
 
     /**
-     * 选定的数据列
+     * 设置header
      * @var array
      */
-    private $cells = [];
+    private $header = [];
 
     /**
-     * 输出格式
+     * 设置数据
+     * @var array
+     */
+    private $data = [];
+
+    /**
+     * 设置保存文件格式
      * @var string
      */
-    private $outputFormat = 'php://output';
-
-    /**
-     * 单元列
-     * @var string[]
-     */
-    private $cellKey = [
-        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-        'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-        'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM',
-        'AN', 'AO', 'AP', 'AQ', 'AR', 'AS', 'AT', 'AU', 'AV', 'AW', 'AX', 'AY', 'AZ',
-    ];
+    private $suffix = 'xlsx';
 
     /**
      * 单元格样式
@@ -162,148 +165,185 @@ class Excel
     }
 
     /**
+     * 设置标题
      * @param string $val
-     * @author Domino <m18434900825@163.com>
-     * @title  设置字体输出格式
-     * @time   2021/3/19 001913:19
+     * @return $this
      */
-    public function setFontSize(int $val)
+    public function setTitle(string $val)
     {
-        if ($val) $this->fontSize = $val;
+        $this->title = $val;
+        return $this;
+    }
+
+    /**
+     * @param array $val
+     * @return $this
+     */
+    public function setHeader(array $val)
+    {
+        $this->header = $val;
+        return $this;
+    }
+
+    /**
+     * @param array $val
+     * @return $this
+     */
+    public function setData(array $val)
+    {
+        $this->data = $val;
         return $this;
     }
 
     /**
      * @param string $val
-     * @author Domino <m18434900825@163.com>
-     * @title  设置输出格式
-     * @time   2021/3/17 001712:34
+     * @return $this
      */
-    public function setOutputFormat(string $val)
+    public function setSuffix(string $val)
     {
-        if ($val) $this->outputFormat = $val;
+        $this->suffix = strtolower($val);
         return $this;
     }
 
     /**
-     * @param array  $header    表头 ['11', '22', '33']
-     * @param array  $data      数据
-     * @param string $title     标题
-     * @param string $sheetName 单元名称
-     * @param array  $info      第二行信息
+     * @param string $filename 输出文件名
+     * @param string $path 保存路径
      * @throws \PhpOffice\PhpSpreadsheet\Exception
-     * @author Domino <m18434900825@163.com>
-     * @title  title
-     * @time   2021/3/17 001712:19
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
-    public function export($data = [], $header = [], $title = '', $sheetName = '')
+    public function export(string $filename = '', string $path = '')
     {
         // todo 多个工作区间导出、数据判断（文字、图片、链接）
         $spreadsheet = new Spreadsheet();
-
-        if (!$title) {
-            $title = $this->title;
-        } else {
-            $this->title = $title;
-        }
-        if (empty($header)) {
+        $filename = !empty($filename) ? $filename : time();
+        if (empty($this->header)) {
             die('表头不能为空');
         }
-        if (count($header) > count($this->cellKey)) {
-            die('表头长度过长');
-        }
-        if (empty($data)) {
+        if (empty($this->data)) {
             die('数据不能为空');
         }
-        if (!$sheetName) {
-            $sheetName = $this->title;
-        }
-        $this->maxCell = $this->cellKey[count($header) - 1];
-        $this->cells   = array_slice($this->cellKey, 0, count($header));
-        $this->length  = count($data);
+        $this->maxCell = Coordinate::stringFromColumnIndex(count($this->header));
         // 设置基础信息
         $spreadsheet->getProperties()
             ->setCreator("Neo")
             ->setLastModifiedBy("Neo")
-            ->setTitle($title)
-            ->setSubject($sheetName)
+            ->setTitle($this->title)
+            ->setSubject($this->title)
             ->setDescription("")
-            ->setKeywords($sheetName)
+            ->setKeywords($this->title)
             ->setCategory("");
         // 设置单元区间
         $spreadsheet->setActiveSheetIndex(0);
-        $sheet = $spreadsheet->getActiveSheet();
-        // 设置字体
+        // 设置字体大小
         $spreadsheet->getDefaultStyle()->getFont()->setSize($this->fontSize);
+        $sheet = $spreadsheet->getActiveSheet();
         // 设置单元格标题
-        $sheet->setTitle($sheetName);
+        $sheet->setTitle($this->title);
         // 设置默认宽度 && 高度
         $sheet->getDefaultRowDimension()->setRowHeight($this->height);
         // 表头文字加粗
-        $sheet->getStyle('A1:' . $this->maxCell . '1')->getFont()->setBold(true);
-        // 设置背景颜色
-        $sheet->getStyle('A1:' . $this->maxCell . '1')->getFill()
+        $sheet->getStyle(Coordinate::stringFromColumnIndex($this->topNum) . $this->topNum . ':' . $this->maxCell . $this->topNum)
+            ->getFont()
+            ->setBold(true);
+        // 设置表头背景颜色
+        $sheet->getStyle(Coordinate::stringFromColumnIndex($this->topNum) . $this->topNum . ':' . $this->maxCell . $this->topNum)
+            ->getFill()
             ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-            ->getStartColor()->setRGB('DDEBF7');
-        // 设置表头行高
-        $sheet->getRowDimension(1)->setRowHeight($this->height);
-        // 设置表头自动过滤
-        $spreadsheet->getActiveSheet()->setAutoFilter('A1:' . $this->maxCell . ($this->topNum + $this->length));
-        // 设置边框
-//        $sheet->getStyle('A2:'. $this->maxCell . ($this->topNum + $this->length))->applyFromArray($this->styleArray);
+            ->getStartColor()
+            ->setRGB($this->headerBgColor);
+
         // 设置表头数据
-        foreach ($this->cells as $k => $v) {
-            $sheet->getStyle($v . '1')->applyFromArray($this->styleHeaderArray); // 设置边框
-            $sheet->getColumnDimension($v)->setAutoSize(true); // 自适应宽度
-            $sheet->setCellValue($v . '1', $header[$k]);
+        foreach ($this->header as $k => $v) {
+            $sheet->getStyle(Coordinate::stringFromColumnIndex($k + 1) . $this->topNum)
+                ->applyFromArray($this->styleHeaderArray); // 设置边框
+            $sheet->setCellValueExplicit(Coordinate::stringFromColumnIndex($k + 1) . $this->topNum, $v, DataType::TYPE_STRING);
         }
 
         // 设置数据
-        foreach ($this->cells as $k => $v) {
-            foreach ($data as $m => $n) {
-                $sheet->getRowDimension($m + 2)->setRowHeight($this->height); // 设置行高
-                $sheet->getStyle($v . ($m + 2))->applyFromArray($this->styleArray); // 设置边框
-                $str = '';
-                if (isset($n[$k]) && !is_array($n[$k])) {
-                    $str = $n[$k];
-                } else if (isset($n[$k]) && is_array($n[$k])) {
-                    foreach ($n[$k] as $value) {
-                        $str .= $value . chr(10);
-                    }
-                }
-                $format = $this->isValFormat($str);
-                switch ($format) {
-                    case 'phone':
-                    case 'id_card':
-                    case 'email':
-                    case 'bank':
-                        $sheet->setCellValue($v . ($this->topNum + 1 + $m), $str . "\t");
-                        break;
-                    case 'url':
-                        $sheet->setCellValue($v . ($this->topNum + 1 + $m), $str);
-                        $sheet->getCell($v . ($this->topNum + 1 + $m))->getHyperlink()->setUrl($str);
-                        break;
-                    default:
-                        $sheet->setCellValue($v . ($this->topNum + 1 + $m), $str);
-                        break;
+        $size = ceil(count($this->data) / 500);
+        for ($i = 0; $i < $size; $i++) {
+            $buffer = array_slice($this->data, $i * 500, 500);
+            foreach ($buffer as $k => $v) {
+                $row = $k + $this->topNum + 1; // 行
+                foreach ($v as $m => $n) {
+                    $sheet->getStyle(Coordinate::stringFromColumnIndex($m + 1) . $row)->applyFromArray($this->styleArray); // 设置边框
+                    $sheet->setCellValueExplicit(Coordinate::stringFromColumnIndex($m + 1) . $row, $n . "\t", DataType::TYPE_STRING);
                 }
             }
         }
-        // 导出
-        $objWriter = IOFactory::createWriter($spreadsheet, 'Xlsx');
-        $filename  = $this->title . '.xlsx';
-        ob_end_clean();
-        ob_start();
-        // 解决跨域
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: POST,PUT,GET,DELETE');
-        header('Access-Control-Allow-Headers: User-Agent, Keep-Alive, Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With');
-        header('Access-Control-Allow-Credentials: true');
-        header('Content-Type: application/vnd.ms-excel');
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-        header('Cache-Control: max-age=0');
-        $objWriter->save($this->outputFormat);
+
+        // 设置表头自动过滤（起始节点-结束节点）
+        $sheet->setAutoFilter(Coordinate::stringFromColumnIndex($this->topNum) . $this->topNum . ':' . $this->maxCell . ($this->topNum + count($this->data)));
+
+        // 直接输出下载
+        switch ($this->suffix) {
+            case 'xlsx':
+                $writer = new Xlsx($spreadsheet);
+                if (!empty($path)) {
+                    $writer->save($path);
+                } else {
+                    header('Access-Control-Allow-Origin: *');
+                    header('Access-Control-Allow-Methods: POST,PUT,GET,DELETE');
+                    header('Access-Control-Allow-Headers: User-Agent, Keep-Alive, Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With');
+                    header('Access-Control-Allow-Credentials: true');
+                    header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8;");
+                    header("Content-Disposition: inline;filename=\"{$filename}.xlsx\"");
+                    header('Cache-Control: max-age=0');
+                    $writer->save('php://output');
+                }
+                exit();
+                break;
+            case 'xls':
+                $writer = new Xls($spreadsheet);
+                if (!empty($path)) {
+                    $writer->save($path);
+                } else {
+                    header('Access-Control-Allow-Origin: *');
+                    header('Access-Control-Allow-Methods: POST,PUT,GET,DELETE');
+                    header('Access-Control-Allow-Headers: User-Agent, Keep-Alive, Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With');
+                    header('Access-Control-Allow-Credentials: true');
+                    header("Content-Type:application/vnd.ms-excel;charset=utf-8;");
+                    header("Content-Disposition:inline;filename=\"{$filename}.xls\"");
+                    header('Cache-Control: max-age=0');
+                    $writer->save('php://output');
+                }
+                exit();
+                break;
+            case 'csv':
+                $writer = new Csv($spreadsheet);
+                if (!empty($path)) {
+                    $writer->save($path);
+                } else {
+                    header('Access-Control-Allow-Origin: *');
+                    header('Access-Control-Allow-Methods: POST,PUT,GET,DELETE');
+                    header('Access-Control-Allow-Headers: User-Agent, Keep-Alive, Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With');
+                    header('Access-Control-Allow-Credentials: true');
+                    header("Content-type:text/csv;charset=utf-8;");
+                    header("Content-Disposition:attachment; filename={$filename}.csv");
+                    header('Cache-Control: max-age=0');
+                    $writer->save('php://output');
+                }
+                exit();
+                break;
+            case 'html':
+                $writer = new Html($spreadsheet);
+                if (!empty($path)) {
+                    $writer->save($path);
+                } else {
+                    header('Access-Control-Allow-Origin: *');
+                    header('Access-Control-Allow-Methods: POST,PUT,GET,DELETE');
+                    header('Access-Control-Allow-Headers: User-Agent, Keep-Alive, Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With');
+                    header('Access-Control-Allow-Credentials: true');
+                    header("Content-Type:text/html;charset=utf-8;");
+                    header("Content-Disposition:attachment;filename=\"{$filename}.{$this->suffix}\"");
+                    header('Cache-Control: max-age=0');
+                    $writer->save('php://output');
+                }
+                exit();
+                break;
+        }
+
+        return true;
     }
 
     /**
@@ -379,33 +419,6 @@ class Excel
         }
 
         return $ten;
-    }
-
-    /**
-     * @param string $val
-     * @author Domino <m18434900825@163.com>
-     * @title  格式化字符串
-     * @time   2021/3/17 001716:44
-     */
-    private function isValFormat($val = '')
-    {
-        // 判断邮箱、手机号、身份证、银行卡号
-        $format = 'text';
-        if (is_scalar($val)) { // 检测是否为标量
-            if (filter_var($val, FILTER_VALIDATE_EMAIL)) { // 邮箱
-                $format = 'email';
-            } else if (preg_match('/^1[3-9]\d{9}$/', (string)$val)) { // 手机号
-                $format = 'mobile';
-            } else if (preg_match('/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}$)/', (string)$val)) {
-                $format = 'id_card';
-            } else if (is_numeric($val) && strpos($val, '.') === false) { // 判断正整数
-                if (check_bank_card($val)) $format = 'bank';
-            } else if (filter_var($val, FILTER_SANITIZE_URL)) {
-                $format = 'url';
-            }
-        }
-
-        return $format;
     }
 
     /**

@@ -1,5 +1,19 @@
 <?php
 
+/*
+ * +----------------------------------------------------------------------
+ * | do-tool工具库
+ * +----------------------------------------------------------------------
+ * | Author: Domino184 <m18434900825@163.com>
+ * +----------------------------------------------------------------------
+ */
+
+declare(strict_types=1);
+
+/*
+ * // asdfasdf
+ */
+
 namespace DoTool;
 
 /**
@@ -7,7 +21,6 @@ namespace DoTool;
  */
 class Http
 {
-
     /**
      * 发送一个POST请求
      * @param string $url     请求URL
@@ -44,16 +57,17 @@ class Http
      */
     public static function sendRequest($url, $params = [], $method = 'POST', $options = [])
     {
-        $method       = strtoupper($method);
-        $protocol     = substr($url, 0, 5);
-        $query_string = is_array($params) ? http_build_query($params) : $params;
+        $method = strtoupper($method);
+        $protocol = substr($url, 0, 5);
 
-        $ch       = curl_init();
+        $ch = curl_init();
         $defaults = [];
         if ('GET' == $method) {
-            $geturl                = $query_string ? $url . (stripos($url, "?") !== false ? "&" : "?") . $query_string : $url;
+            $query_string = is_array($params) ? http_build_query($params) : $params;
+            $geturl = $query_string ? $url . (stripos($url, "?") !== false ? "&" : "?") . $query_string : $url;
             $defaults[CURLOPT_URL] = $geturl;
         } else {
+            $query_string = $params;
             $defaults[CURLOPT_URL] = $url;
             if ($method == 'POST') {
                 $defaults[CURLOPT_POST] = 1;
@@ -63,15 +77,15 @@ class Http
             $defaults[CURLOPT_POSTFIELDS] = $query_string;
         }
 
-        $defaults[CURLOPT_HEADER]         = false;
-        $defaults[CURLOPT_USERAGENT]      = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.98 Safari/537.36";
+        $defaults[CURLOPT_HEADER] = false;
+        $defaults[CURLOPT_USERAGENT] = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.98 Safari/537.36";
         $defaults[CURLOPT_FOLLOWLOCATION] = true;
         $defaults[CURLOPT_RETURNTRANSFER] = true;
         $defaults[CURLOPT_CONNECTTIMEOUT] = 3;
-        $defaults[CURLOPT_TIMEOUT]        = 3;
+        $defaults[CURLOPT_TIMEOUT] = 3;
 
         // disable 100-continue
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Expect:']);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));
 
         if ('https' == $protocol) {
             $defaults[CURLOPT_SSL_VERIFYPEER] = false;
@@ -85,7 +99,7 @@ class Http
 
         if (false === $ret || !empty($err)) {
             $errno = curl_errno($ch);
-            $info  = curl_getinfo($ch);
+            $info = curl_getinfo($ch);
             curl_close($ch);
             return [
                 'ret'   => false,
@@ -129,7 +143,7 @@ class Http
         //构造查询的参数
         if ($method == 'GET' && $post_string) {
             $parts['query'] = isset($parts['query']) ? $parts['query'] . '&' . $post_string : $post_string;
-            $post_string    = '';
+            $post_string = '';
         }
         $parts['query'] = isset($parts['query']) && $parts['query'] ? '?' . $parts['query'] : '';
         //发送socket请求,获得连接句柄

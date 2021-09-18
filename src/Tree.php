@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * +----------------------------------------------------------------------
+ * | do-tool工具库
+ * +----------------------------------------------------------------------
+ * | Author: Domino184 <m18434900825@163.com>
+ * +----------------------------------------------------------------------
+ */
+
+declare(strict_types=1);
+
 namespace DoTool;
 
 /**
@@ -7,7 +17,6 @@ namespace DoTool;
  */
 class Tree
 {
-
     /**
      * 配置参数
      * @var array
@@ -57,25 +66,15 @@ class Tree
         $data  = array_values($data);
 
         foreach ($data as $k => $v) {
-
             if ($v[self::$config['pid']] == $pid) {
-
                 if ($limitLevel > 0 && $limitLevel == $currentLevel) {
-
                     return $trees;
-
                 }
-
                 unset($data[$k]);
-
                 $childs = self::toTree($data, $v[self::$config['id']], $limitLevel, ($currentLevel + 1));
-
                 if (!empty($childs)) {
-
                     $v[self::$config['child']] = $childs;
-
                 }
-
                 $trees[] = $v;
             }
         }

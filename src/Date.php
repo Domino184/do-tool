@@ -1,19 +1,28 @@
 <?php
 
+/*
+ * +----------------------------------------------------------------------
+ * | do-tool工具库
+ * +----------------------------------------------------------------------
+ * | Author: Domino184 <m18434900825@163.com>
+ * +----------------------------------------------------------------------
+ */
+
+declare(strict_types=1);
+
 namespace DoTool;
 
 /**
- * @mark 依赖于calendar扩展
  * 日期时间处理类
  */
 class Date
 {
-    const YEAR = 31536000;
-    const MONTH = 2592000;
-    const WEEK = 604800;
-    const DAY = 86400;
-    const HOUR = 3600;
-    const MINUTE = 60;
+    public const YEAR = 31536000;
+    public const MONTH = 2592000;
+    public const WEEK = 604800;
+    public const DAY = 86400;
+    public const HOUR = 3600;
+    public const MINUTE = 60;
 
     /**
      * 计算两个时区间相差的时长,单位为秒
@@ -23,9 +32,9 @@ class Date
      * [!!] A list of time zones that PHP supports can be found at
      * <http://php.net/timezones>.
      *
-     * @param string $remote timezone that to find the offset of
-     * @param string $local  timezone used as the baseline
-     * @param mixed  $now    UNIX timestamp or date string
+     * @param   string $remote timezone that to find the offset of
+     * @param   string $local  timezone used as the baseline
+     * @param   mixed  $now    UNIX timestamp or date string
      * @return  integer
      */
     public static function offset($remote, $local = null, $now = null)
@@ -40,10 +49,10 @@ class Date
         }
         // Create timezone objects
         $zone_remote = new \DateTimeZone($remote);
-        $zone_local  = new \DateTimeZone($local);
+        $zone_local = new \DateTimeZone($local);
         // Create date objects from timezones
         $time_remote = new \DateTime($now, $zone_remote);
-        $time_local  = new \DateTime($now, $zone_local);
+        $time_local = new \DateTime($now, $zone_local);
         // Find the offset
         $offset = $zone_remote->getOffset($time_remote) - $zone_local->getOffset($time_local);
         return $offset;
@@ -55,9 +64,9 @@ class Date
      * $span = self::span(60, 182, 'minutes,seconds'); // array('minutes' => 2, 'seconds' => 2)
      * $span = self::span(60, 182, 'minutes'); // 2
      *
-     * @param int    $remote timestamp to find the span of
-     * @param int    $local  timestamp to use as the baseline
-     * @param string $output formatting string
+     * @param   int    $remote timestamp to find the span of
+     * @param   int    $local  timestamp to use as the baseline
+     * @param   string $output formatting string
      * @return  string   when only a single output is requested
      * @return  array    associative list of all outputs requested
      * @from https://github.com/kohana/ohanzee-helpers/blob/master/src/Date.php
@@ -115,32 +124,32 @@ class Date
     /**
      * 格式化 UNIX 时间戳为人易读的字符串
      *
-     * @param int    Unix 时间戳
-     * @param mixed $local 本地时间
+     * @param    int    Unix 时间戳
+     * @param    mixed $local 本地时间
      *
      * @return    string    格式化的日期字符串
      */
     public static function human($remote, $local = null)
     {
         $timediff = (is_null($local) || $local ? time() : $local) - $remote;
-        $chunks   = [
-            [60 * 60 * 24 * 365, 'year'],
-            [60 * 60 * 24 * 30, 'month'],
-            [60 * 60 * 24 * 7, 'week'],
-            [60 * 60 * 24, 'day'],
-            [60 * 60, 'hour'],
-            [60, 'minute'],
-            [1, 'second'],
-        ];
+        $chunks = array(
+            array(60 * 60 * 24 * 365, 'year'),
+            array(60 * 60 * 24 * 30, 'month'),
+            array(60 * 60 * 24 * 7, 'week'),
+            array(60 * 60 * 24, 'day'),
+            array(60 * 60, 'hour'),
+            array(60, 'minute'),
+            array(1, 'second')
+        );
 
         for ($i = 0, $j = count($chunks); $i < $j; $i++) {
             $seconds = $chunks[$i][0];
-            $name    = $chunks[$i][1];
+            $name = $chunks[$i][1];
             if (($count = floor($timediff / $seconds)) != 0) {
                 break;
             }
         }
-        return sprintf("%d {$name}%s ago", $count, ($count > 1 ? 's' : ''));
+        return __("%d {$name}%s ago", $count, ($count > 1 ? 's' : ''));
     }
 
     /**

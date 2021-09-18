@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * +----------------------------------------------------------------------
+ * | do-tool工具库
+ * +----------------------------------------------------------------------
+ * | Author: Domino184 <m18434900825@163.com>
+ * +----------------------------------------------------------------------
+ */
+
+declare(strict_types=1);
+
 if (!function_exists('def_format_bytes')) {
     /**
      * 将字节转换为可读文本
@@ -78,7 +88,9 @@ if (!function_exists('set_timeout')) {
     function set_timeout($timeout = 172800)
     {
         static $firstRun = false;
-        if ($firstRun) return; //避免重复调用; 5000次100ms;
+        if ($firstRun) {
+            return;
+        } //避免重复调用; 5000次100ms;
         $firstRun = true;
 
         @ini_set("max_execution_time", $timeout);
@@ -333,7 +345,7 @@ if (!function_exists('def_format_num')) {
             $chiStr = $temp_num == 1 ? $chiUni[1] : $chiNum[$temp_num] . $chiUni[1];
             $temp_num = $num_str[1];
             $chiStr .= $temp_num == 0 ? '' : $chiNum[$temp_num];
-        } else if ($count > 2) {
+        } elseif ($count > 2) {
             $index = 0;
             for ($i = $count - 1; $i >= 0; $i--) {
                 $temp_num = $num_str[$i];
@@ -389,7 +401,7 @@ if (!function_exists('def_format_time')) {
                             $time = '昨天 ' . date('H:i', $time);
                             break;
                     }
-                } else if ($time >= $this_week_start && $time <= $this_week_end) { // 本周
+                } elseif ($time >= $this_week_start && $time <= $this_week_end) { // 本周
                     switch ($format) {
                         case 'date':
                             $time = def_format_week($time);
@@ -435,11 +447,11 @@ if (!function_exists('def_format_today')) {
         // 1-5点是凌晨，5-8点是早晨，9-13点是中午，14-18点是下午，19-24点是晚上。
         if ($time > 0 && $time <= 5) {
             return '凌晨';
-        } else if ($time > 5 && $time <= 8) {
+        } elseif ($time > 5 && $time <= 8) {
             return '早晨';
-        } else if ($time > 8 && $time <= 13) {
+        } elseif ($time > 8 && $time <= 13) {
             return '中午';
-        } else if ($time > 13 && $time <= 18) {
+        } elseif ($time > 13 && $time <= 18) {
             return '下午';
         } else {
             return '晚上';
@@ -478,7 +490,8 @@ if (!function_exists('def_str_filter')) {
      * @title 字符串处理
      * @time 2021/1/26 002613:00
      */
-    function def_str_filter($value) {
+    function def_str_filter($value)
+    {
         if (!is_array($value)) {
             $value = explode(',', $value);
         }
@@ -493,11 +506,11 @@ if (!function_exists('def_arr_filter')) {
      * @title 数组处理
      * @time 2021/1/26 002613:00
      */
-    function def_arr_filter($value) {
+    function def_arr_filter($value)
+    {
         if (!is_array($value)) {
             $value = (array)explode(',', $value);
         }
         return array_unique(array_filter($value));
     }
 }
-

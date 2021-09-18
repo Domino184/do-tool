@@ -2,3 +2,4 @@
 /.idea
 /composer.lock
 /test/*.htaccess
+.php-cs-fixer.cache

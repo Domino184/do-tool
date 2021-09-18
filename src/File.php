@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * +----------------------------------------------------------------------
+ * | do-tool工具库
+ * +----------------------------------------------------------------------
+ * | Author: Domino184 <m18434900825@163.com>
+ * +----------------------------------------------------------------------
+ */
+
+declare(strict_types=1);
+
 namespace DoTool;
 
 /**
@@ -9,8 +19,7 @@ namespace DoTool;
  */
 class File
 {
-
-    static private $contents = [];
+    private static $contents = [];
 
     /**
      * 架构函数
@@ -26,7 +35,7 @@ class File
      * @param string $filename 文件名
      * @return string
      */
-    static public function read($filename, $type = '')
+    public static function read($filename, $type = '')
     {
         return self::get($filename, 'content', $type);
     }
@@ -38,11 +47,12 @@ class File
      * @param string $content  文件内容
      * @return boolean
      */
-    static public function put($filename, $content, $type = '')
+    public static function put($filename, $content, $type = '')
     {
         $dir = dirname($filename);
-        if (!is_dir($dir))
+        if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
+        }
         if (false === file_put_contents($filename, $content)) {
             throw new \think\Exception('文件写入错误:' . $filename);
         } else {
@@ -58,7 +68,7 @@ class File
      * @param string $content  追加的文件内容
      * @return boolean
      */
-    static public function append($filename, $content, $type = '')
+    public static function append($filename, $content, $type = '')
     {
         if (is_file($filename)) {
             $content = self::read($filename, $type) . $content;
@@ -73,10 +83,11 @@ class File
      * @param array  $vars     传入变量
      * @return void
      */
-    static public function load($_filename, $vars = null)
+    public static function load($_filename, $vars = null)
     {
-        if (!is_null($vars))
+        if (!is_null($vars)) {
             extract($vars, EXTR_OVERWRITE);
+        }
         include $_filename;
     }
 
@@ -86,7 +97,7 @@ class File
      * @param string $filename 文件名
      * @return boolean
      */
-    static public function has($filename, $type = '')
+    public static function has($filename, $type = '')
     {
         return is_file($filename);
     }
@@ -97,7 +108,7 @@ class File
      * @param string $filename 文件名
      * @return boolean
      */
-    static public function unlink($filename, $type = '')
+    public static function unlink($filename, $type = '')
     {
         unset(self::$contents[$filename]);
         return is_file($filename) ? unlink($filename) : false;
@@ -110,10 +121,12 @@ class File
      * @param string $name     信息名 mtime或者content
      * @return boolean
      */
-    static public function get($filename, $name, $type = '')
+    public static function get($filename, $name, $type = '')
     {
         if (!isset(self::$contents[$filename])) {
-            if (!is_file($filename)) return false;
+            if (!is_file($filename)) {
+                return false;
+            }
             self::$contents[$filename] = file_get_contents($filename);
         }
         $content = self::$contents[$filename];
@@ -129,13 +142,13 @@ class File
      * @param string $dir 路径
      * @return ArrayObject
      */
-    static public function get_dir_info($dir)
+    public static function get_dir_info($dir)
     {
         $handle          = @opendir($dir);//打开指定目录
         $directory_count = 0;
         $total_size      = 0;
         $file_cout       = 0;
-        while (FALSE !== ($file_path = readdir($handle))) {
+        while (false !== ($file_path = readdir($handle))) {
             if ($file_path != "." && $file_path != "..") {
                 $next_path = $dir . '/' . $file_path;
                 if (is_dir($next_path)) {
@@ -165,7 +178,7 @@ class File
      * @param string  $sort    数组排序
      * @return ArrayObject
      */
-    static public function list_dir_info($dirname, $is_all = FALSE, $exts = '', $sort = 'ASC')
+    public static function list_dir_info($dirname, $is_all = false, $exts = '', $sort = 'ASC')
     {
         //处理多于的/号
         $new = strrev($dirname);
@@ -178,18 +191,20 @@ class File
         $subfiles = [];
         if (is_dir($dirname)) {
             $fh = opendir($dirname);
-            while (($file = readdir($fh)) !== FALSE) {
-                if (strcmp($file, '.') == 0 || strcmp($file, '..') == 0) continue;
+            while (($file = readdir($fh)) !== false) {
+                if (strcmp($file, '.') == 0 || strcmp($file, '..') == 0) {
+                    continue;
+                }
                 $filepath = $dirname . '/' . $file;
                 switch ($exts) {
                     case '*':
-                        if (is_dir($filepath) && $is_all == TRUE) {
+                        if (is_dir($filepath) && $is_all == true) {
                             $files = array_merge($files, self::list_dir_info($filepath, $is_all, $exts, $sort));
                         }
                         array_push($files, $filepath);
                         break;
                     case 'folder':
-                        if (is_dir($filepath) && $is_all == TRUE) {
+                        if (is_dir($filepath) && $is_all == true) {
                             $files = array_merge($files, self::list_dir_info($filepath, $is_all, $exts, $sort));
                             array_push($files, $filepath);
                         } elseif (is_dir($filepath)) {
@@ -197,14 +212,14 @@ class File
                         }
                         break;
                     case 'file':
-                        if (is_dir($filepath) && $is_all == TRUE) {
+                        if (is_dir($filepath) && $is_all == true) {
                             $files = array_merge($files, self::list_dir_info($filepath, $is_all, $exts, $sort));
                         } elseif (is_file($filepath)) {
                             array_push($files, $filepath);
                         }
                         break;
                     default:
-                        if (is_dir($filepath) && $is_all == TRUE) {
+                        if (is_dir($filepath) && $is_all == true) {
                             $files = array_merge($files, self::list_dir_info($filepath, $is_all, $exts, $sort));
                         } elseif (preg_match("/\.($exts)/i", $filepath) && is_file($filepath)) {
                             array_push($files, $filepath);
@@ -226,7 +241,7 @@ class File
             closedir($fh);
             return $files;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
@@ -235,7 +250,7 @@ class File
      * @param string $file
      * @return ArrayObject
      */
-    static public function list_info($file)
+    public static function list_info($file)
     {
         $dir               = [];
         $dir['filename']   = basename($file);//返回路径中的文件名部分。

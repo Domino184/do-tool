@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * +----------------------------------------------------------------------
+ * | do-tool工具库
+ * +----------------------------------------------------------------------
+ * | Author: Domino184 <m18434900825@163.com>
+ * +----------------------------------------------------------------------
+ */
+
+declare(strict_types=1);
+
 namespace DoTool;
 
 class Redis
@@ -78,8 +88,11 @@ class Redis
                 if ($repeat) {
                     $return = $this->_REDIS->setnx($key, $value);
                 } else {
-                    if ($time && is_numeric($time)) $return = $this->_REDIS->setex($key, $time, $value);
-                    else $return = $this->_REDIS->set($key, $value);
+                    if ($time && is_numeric($time)) {
+                        $return = $this->_REDIS->setex($key, $time, $value);
+                    } else {
+                        $return = $this->_REDIS->set($key, $value);
+                    }
                 }
             }
         }
@@ -101,8 +114,11 @@ class Redis
         if (is_array($key) && !empty($key)) {
             $return = $this->_REDIS->mGet($key);
         } else {
-            if (isset($start) && isset($end)) $return = $this->_REDIS->getRange($key);
-            else $return = $this->_REDIS->get($key);
+            if (isset($start) && isset($end)) {
+                $return = $this->_REDIS->getRange($key);
+            } else {
+                $return = $this->_REDIS->get($key);
+            }
         }
 
         return $return;
@@ -148,12 +164,18 @@ class Redis
 
         switch ($type) {
             case 0:
-                if ($n == 1) $return = $this->_REDIS->decr($key);
-                else if ($n > 1) $return = $this->_REDIS->decrBy($key, $n);
+                if ($n == 1) {
+                    $return = $this->_REDIS->decr($key);
+                } elseif ($n > 1) {
+                    $return = $this->_REDIS->decrBy($key, $n);
+                }
                 break;
             case 1:
-                if ($n == 1) $return = $this->_REDIS->incr($key);
-                else if ($n > 1) $return = $this->_REDIS->incrBy($key, $n);
+                if ($n == 1) {
+                    $return = $this->_REDIS->incr($key);
+                } elseif ($n > 1) {
+                    $return = $this->_REDIS->incrBy($key, $n);
+                }
                 break;
             default:
                 $return = false;
@@ -230,16 +252,18 @@ class Redis
 
         switch ($direction) {
             case 0:
-                if ($repeat)
+                if ($repeat) {
                     $return = $this->_REDIS->lPushx($list, $value);
-                else
+                } else {
                     $return = $this->_REDIS->lPush($list, $value);
+                }
                 break;
             case 1:
-                if ($repeat)
+                if ($repeat) {
                     $return = $this->_REDIS->rPushx($list, $value);
-                else
+                } else {
                     $return = $this->_REDIS->rPush($list, $value);
+                }
                 break;
             default:
                 $return = false;
@@ -263,16 +287,18 @@ class Redis
 
         switch ($direction) {
             case 0:
-                if ($timeout && $list2)
+                if ($timeout && $list2) {
                     $return = $this->_REDIS->blPop($list1, $list2, $timeout);
-                else
+                } else {
                     $return = $this->_REDIS->lPop($list1);
+                }
                 break;
             case 1:
-                if ($timeout && $list2)
+                if ($timeout && $list2) {
                     $return = $this->_REDIS->brPop($list1, $list2, $timeout);
-                else
+                } else {
                     $return = $this->_REDIS->rPop($list1);
+                }
                 break;
             default:
                 $return = false;
@@ -437,8 +463,11 @@ class Redis
         if ($set2) {
             $return = $this->_REDIS->sMove($set1, $set2, $value);
         } else {
-            if ($stype) $return = $this->_REDIS->zRem($set1, $value);
-            else $return = $this->_REDIS->sRem($set1, $value);
+            if ($stype) {
+                $return = $this->_REDIS->zRem($set1, $value);
+            } else {
+                $return = $this->_REDIS->sRem($set1, $value);
+            }
         }
 
         return $return;
@@ -471,8 +500,11 @@ class Redis
         $return = null;
 
         if ($stype) {
-            if ($start && $end) $return = $this->_REDIS->zCount($set, $start, $end);
-            else $return = $this->_REDIS->zCard($set);
+            if ($start && $end) {
+                $return = $this->_REDIS->zCount($set, $start, $end);
+            } else {
+                $return = $this->_REDIS->zCard($set);
+            }
         } else {
             $return = $this->_REDIS->sSize($set);
         }
@@ -512,8 +544,11 @@ class Redis
 
         if (is_array($set) && !empty($set)) {
             if ($newset) {
-                if ($stype) $return = $this->_REDIS->zInterStore($newset, $set, $weight, $function);
-                else $return = $this->_REDIS->sInterStore($newset, $set);
+                if ($stype) {
+                    $return = $this->_REDIS->zInterStore($newset, $set, $weight, $function);
+                } else {
+                    $return = $this->_REDIS->sInterStore($newset, $set);
+                }
             } else {
                 $return = $this->_REDIS->sInter($set);
             }
@@ -536,8 +571,11 @@ class Redis
 
         if (is_array($set) && !empty($set)) {
             if ($newset) {
-                if ($stype) $return = $this->_REDIS->zUnionStore($newset, $set, $weight, $function);
-                else $return = $this->_REDIS->sUnionStore($newset, $set);
+                if ($stype) {
+                    $return = $this->_REDIS->zUnionStore($newset, $set, $weight, $function);
+                } else {
+                    $return = $this->_REDIS->sUnionStore($newset, $set);
+                }
             } else {
                 $return = $this->_REDIS->sUnion($set);
             }
@@ -592,7 +630,7 @@ class Redis
             'limit' => [0, 1], //array(start,length)
             'get'   => 'some_other_pattern_*', //多个匹配格式:array('some_other_pattern1_*','some_other_pattern2_*')
             'sort'  => 'asc', // asc|desc 默认asc
-            'alpha' => TRUE, //
+            'alpha' => true, //
             'store' => 'some_need_pattern_*' //永久性排序值
         ];
 
@@ -692,10 +730,11 @@ class Redis
         $return = null;
 
         if ($key) {
-            if (is_array($key) && !empty($key))
+            if (is_array($key) && !empty($key)) {
                 $return = $this->_REDIS->hMGet($hash, $key);
-            else
+            } else {
                 $return = $this->_REDIS->hGet($hash, $key);
+            }
         } else {
             switch ($type) {
                 case 0:
