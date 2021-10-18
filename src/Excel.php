@@ -8,8 +8,6 @@
  * +----------------------------------------------------------------------
  */
 
-declare(strict_types=1);
-
 namespace DoTool;
 
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
