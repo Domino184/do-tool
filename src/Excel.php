@@ -262,11 +262,12 @@ class Excel
         for ($i = 0; $i < $size; $i++) {
             $buffer = array_slice($this->data, $i * 500, 500);
             foreach ($buffer as $k => $v) {
-                $row = $k + $this->topNum + 1; // 行
+                $row = $i * 500 + $this->topNum + $k + 1; // 行
                 foreach ($v as $m => $n) {
                     $sheet->getStyle(Coordinate::stringFromColumnIndex($m + 1) . $row)->applyFromArray($this->styleArray); // 设置边框
                     $sheet->setCellValueExplicit(Coordinate::stringFromColumnIndex($m + 1) . $row, $n . "\t", DataType::TYPE_STRING);
                 }
+                unset($buffer[$k]);
             }
         }
 
@@ -340,8 +341,6 @@ class Excel
                 exit();
                 break;
         }
-
-        return true;
     }
 
     /**
