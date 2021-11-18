@@ -248,77 +248,6 @@ if (!function_exists('check_bank_card')) {
     }
 }
 
-if (!function_exists('diff_date_format')) {
-    /**
-     * 不同时间进行计算
-     * @param $t1
-     * @param $t2
-     * @return string
-     */
-    function diff_date_format($t1, $t2, $output = 'year,month,day')
-    {
-        $output = trim(strtolower((string)$output));
-        if (!$output) {
-            // Invalid output
-            return false;
-        }
-        // Array with the output formats
-        $output = preg_split('/[^a-z]+/', $output);
-        // Convert the list of outputs to an associative array
-        $output = array_combine($output, array_fill(0, count($output), 0));
-        // Make the output values into keys
-        extract(array_flip($output), EXTR_SKIP);
-        if ($t1 > $t2) {
-            $b = getdate($t2);
-            $a = getdate($t1);
-        } else {
-            $b = getdate($t1);
-            $a = getdate($t2);
-        }
-        $n = [1 => 31, 2 => 28, 3 => 31, 4 => 30, 5 => 31, 6 => 30, 7 => 31, 8 => 31, 9 => 30, 10 => 31, 11 => 30, 12 => 31];
-        $y = $m = $d = 0;
-        if ($a['mday'] >= $b['mday']) { //天相减为正
-            if ($a['mon'] >= $b['mon']) {//月相减为正
-                $y = $a['year'] - $b['year'];
-                $m = $a['mon'] - $b['mon'];
-            } else { //月相减为负，借年
-                $y = $a['year'] - $b['year'] - 1;
-                $m = $a['mon'] - $b['mon'] + 12;
-            }
-            $d = $a['mday'] - $b['mday'];
-        } else {  //天相减为负，借月
-            if ($a['mon'] == 1) { //1月，借年
-                $y = $a['year'] - $b['year'] - 1;
-                $m = $a['mon'] - $b['mon'] + 12;
-                $d = $a['mday'] - $b['mday'] + $n[12];
-            } else {
-                if ($a['mon'] == 3) { //3月，判断闰年取得2月天数
-                    $d = $a['mday'] - $b['mday'] + ($a['year'] % 4 == 0 ? 29 : 28);
-                } else {
-                    $d = $a['mday'] - $b['mday'] + $n[$a['mon'] - 1];
-                }
-                if ($a['mon'] >= $b['mon'] + 1) { //借月后，月相减为正
-                    $y = $a['year'] - $b['year'];
-                    $m = $a['mon'] - $b['mon'] - 1;
-                } else { //借月后，月相减为负，借年
-                    $y = $a['year'] - $b['year'] - 1;
-                    $m = $a['mon'] - $b['mon'] + 12 - 1;
-                }
-            }
-        }
-        if (isset($output['year'])) {
-            $output['year'] = $y;
-        }
-        if (isset($output['month'])) {
-            $output['month'] = $m;
-        }
-        if (isset($output['year'])) {
-            $output['day'] = $d;
-        }
-        return $output;
-    }
-}
-
 if (!function_exists('def_format_num')) {
     /**
      * 把数字1-1亿换成汉字表述，如：123->一百二十三
@@ -433,6 +362,73 @@ if (!function_exists('def_format_time')) {
     }
 }
 
+if (!function_exists('def_format_span_time')) {
+    /**
+     * 两个时间戳差值语义化
+     * @param        $remote
+     * @param null   $local
+     * @param string $output
+     * @return bool|string
+     */
+    function def_format_span_time($remote, $local = null, $output = 'years,months,weeks,days,hours,minutes,seconds') {
+        $year = 31536000;
+        $month = 2592000;
+        $week = 604800;
+        $day = 86400;
+        $hour = 3600;
+        $minute = 60;
+        // Normalize output
+        $output = trim(strtolower((string)$output));
+        if (!$output) {
+            // Invalid output
+            return false;
+        }
+        // Array with the output formats
+        $output = preg_split('/[^a-z]+/', $output);
+        // Convert the list of outputs to an associative array
+        $output = array_combine($output, array_fill(0, count($output), 0));
+        // Make the output values into keys
+        extract(array_flip($output), EXTR_SKIP);
+        if ($local === null) {
+            // Calculate the span from the current time
+            $local = time();
+        }
+        // Calculate timespan (seconds)
+        $timespan = abs($remote - $local);
+        $outputFormat = '';
+        if (isset($output['years'])) {
+            $timespan -= $year * ($output['years'] = (int)floor($timespan / $year));
+            $outputFormat .= $output['years'] . '年';
+        }
+        if (isset($output['months'])) {
+            $timespan -= $month * ($output['months'] = (int)floor($timespan / $month));
+            $outputFormat .= $output['months'] . '月';
+        }
+        if (isset($output['weeks'])) {
+            $timespan -= $week * ($output['weeks'] = (int)floor($timespan / $week));
+            $outputFormat .= $output['weeks'] . '周';
+        }
+        if (isset($output['days'])) {
+            $timespan -= $day * ($output['days'] = (int)floor($timespan / $day));
+            $outputFormat .= $output['days'] . '天';
+        }
+        if (isset($output['hours'])) {
+            $timespan -= $hour * ($output['hours'] = (int)floor($timespan / $hour));
+            $outputFormat .= $output['hours'] . '小时';
+        }
+        if (isset($output['minutes'])) {
+            $timespan -= $minute * ($output['minutes'] = (int)floor($timespan / $minute));
+            $outputFormat .= $output['minutes'] . '分';
+        }
+        // Seconds ago, 1
+        if (isset($output['seconds'])) {
+            $output['seconds'] = $timespan;
+            $outputFormat .= $output['seconds'] . '秒';
+        }
+        return $outputFormat;
+    }
+}
+
 if (!function_exists('def_format_today')) {
     /**
      * Author: Domino
@@ -454,31 +450,6 @@ if (!function_exists('def_format_today')) {
         } else {
             return '晚上';
         }
-    }
-}
-
-if (!function_exists('def_diff_time')) {
-    /**
-     * 时间差
-     * @param $time
-     * @return false|string
-     */
-    function def_diff_time($time)
-    {
-        $diff = time() - strtotime($time);
-        if ($diff < 60) {
-            return $diff . '秒';
-        }
-        if ($diff >= 60 && $diff < 60 * 60) {
-            return intval($diff / 60.0) . '分钟';
-        }
-        if ($diff >= 60 * 60 && $diff < 24 * 60 * 60) {
-            return intval($diff / (60 * 60.0)) . '小时';
-        }
-        if ($diff >= 24 * 60 * 60 && $diff < 30 * 24 * 60 * 60) {
-            return intval($diff / (24.0 * 60 * 60)) . '天';
-        }
-        return date('Y-m-d H:i:s', strtotime($time));
     }
 }
 
