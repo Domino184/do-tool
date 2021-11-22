@@ -483,3 +483,31 @@ if (!function_exists('def_arr_filter')) {
         return array_unique(array_filter($value));
     }
 }
+
+if (!function_exists('compress_chapter')) {
+    /**
+     * 字符串压缩
+     * @param     $content
+     * @param int $level
+     * @return string
+     */
+    function def_str_compress($content, $level = 1)
+    {
+        ini_set("memory_limit", "-1");
+        $content = base64_encode(gzcompress($content, $level));
+        return (string)$content;
+    }
+}
+if (!function_exists('decompress_chapter')) {
+    /**
+     * 字符串解压
+     * @param $content
+     * @return string
+     */
+    function def_str_decompress($content)
+    {
+        ini_set("memory_limit", "-1");
+        $content = @gzuncompress(base64_decode($content));
+        return (string)$content;
+    }
+}
