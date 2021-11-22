@@ -484,7 +484,7 @@ if (!function_exists('def_arr_filter')) {
     }
 }
 
-if (!function_exists('compress_chapter')) {
+if (!function_exists('def_str_compress')) {
     /**
      * 字符串压缩
      * @param     $content
@@ -498,7 +498,7 @@ if (!function_exists('compress_chapter')) {
         return (string)$content;
     }
 }
-if (!function_exists('decompress_chapter')) {
+if (!function_exists('def_str_compress')) {
     /**
      * 字符串解压
      * @param $content
