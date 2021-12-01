@@ -498,7 +498,7 @@ if (!function_exists('def_str_compress')) {
         return (string)$content;
     }
 }
-if (!function_exists('def_str_compress')) {
+if (!function_exists('def_str_decompress')) {
     /**
      * 字符串解压
      * @param $content
